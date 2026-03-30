@@ -32,7 +32,7 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
   bool isMeasuring = false;
   String currentStatus = "Ready to measure";
   double currentDistance = 0.0;
-  int measurementStep = 0; // 0 = not measuring, 1 = waiting for first tap, 2 = waiting for second tap
+  int measurementStep = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,9 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
                 measurementStep = 0;
                 currentStatus = "Ready to measure";
               });
-              _showSnackBar('All measurements cleared');
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('All measurements cleared')),
+              );
             },
           ),
           IconButton(
@@ -62,7 +64,7 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
       ),
       body: Column(
         children: [
-          // AR Camera View (Simulated for Web)
+          // Main AR Area
           Expanded(
             flex: 3,
             child: GestureDetector(
@@ -71,42 +73,34 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
                 color: Colors.black,
                 child: Stack(
                   children: [
-                    // Camera placeholder
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Colors.grey[900]!, Colors.grey[800]!],
-                        ),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.camera_alt,
-                              size: 80,
+                    // Background with instructions
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.center_focus_strong,
+                            size: 80,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            'Tap to Measure',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Tap anywhere to place points',
+                            style: TextStyle(
                               color: Colors.white.withOpacity(0.3),
+                              fontSize: 12,
                             ),
-                            const SizedBox(height: 20),
-                            Text(
-                              'Tap anywhere to measure',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.5),
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Point A → Point B = Distance',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.3),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
 
@@ -127,7 +121,7 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
                       ),
                     ),
 
-                    // Current measurement display
+                    // Measurement Display
                     if (currentDistance > 0 && measurementStep == 0)
                       Positioned(
                         top: 20,
@@ -160,7 +154,7 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
                         ),
                       ),
 
-                    // Measuring status
+                    // Measuring Status
                     if (measurementStep > 0)
                       Positioned(
                         top: 20,
@@ -181,7 +175,7 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 5),
+                              const SizedBox(height: 8),
                               LinearProgressIndicator(
                                 backgroundColor: Colors.white.withOpacity(0.3),
                                 valueColor: const AlwaysStoppedAnimation(Colors.white),
@@ -191,7 +185,7 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
                         ),
                       ),
 
-                    // Status
+                    // Status Bar
                     Positioned(
                       bottom: 20,
                       left: 20,
@@ -244,13 +238,6 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey.shade300),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -279,7 +266,7 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
               ),
             ),
 
-          // Control Buttons
+          // Buttons
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -293,43 +280,19 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
                 ),
               ],
             ),
-            child: Column(
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: measurementStep == 0 ? _startMeasurement : null,
-                        icon: const Icon(Icons.tap_and_play),
-                        label: Text(measurementStep == 0 ? 'Start Measuring' : 'Measuring...'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: measurementStep == 0 ? Colors.green : Colors.grey,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                        ),
-                      ),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: measurementStep == 0 ? _startMeasurement : null,
+                    icon: const Icon(Icons.tap_and_play),
+                    label: Text(measurementStep == 0 ? 'Start Measuring' : 'Measuring...'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: measurementStep == 0 ? Colors.green : Colors.grey,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _openARGuide,
-                        icon: const Icon(Icons.view_in_ar),
-                        label: const Text('AR Guide'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _showHelp,
-                        icon: const Icon(Icons.info),
-                        label: const Text('Help'),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -341,15 +304,16 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
 
   void _handleTap() {
     if (measurementStep == 1) {
-      // First tap - Place Point A
       setState(() {
         measurementStep = 2;
         currentStatus = 'Tap again to place Point B';
       });
-      _showSnackBar('📍 Point A placed');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('📍 Point A placed'), duration: Duration(seconds: 1)),
+      );
     }
     else if (measurementStep == 2) {
-      // Second tap - Place Point B and calculate distance
+      // Simulate a measurement (15-65 cm range)
       final simulatedDistance = 15.0 + (DateTime.now().millisecondsSinceEpoch % 500) / 10;
 
       setState(() {
@@ -357,7 +321,6 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
         measurementStep = 0;
         currentStatus = 'Measurement complete! ${simulatedDistance.toStringAsFixed(1)} cm';
 
-        // Save measurement
         measurements.insert(
           0,
           Measurement(
@@ -368,7 +331,9 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
         );
       });
 
-      _showSnackBar('📏 Measured: ${simulatedDistance.toStringAsFixed(1)} cm');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('📏 Measured: ${simulatedDistance.toStringAsFixed(1)} cm')),
+      );
     }
   }
 
@@ -377,44 +342,8 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
       measurementStep = 1;
       currentStatus = 'Tap screen to place Point A';
     });
-    _showSnackBar('Tap anywhere on the camera view to start measuring');
-  }
-
-  void _openARGuide() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('AR on iPhone'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('To view 3D models in AR on your iPhone:'),
-            SizedBox(height: 12),
-            Text('1. Open this app in Safari'),
-            Text('2. Visit this URL:'),
-            SizedBox(height: 8),
-            SelectableText(
-              'https://developer.apple.com/augmented-reality/quick-look/',
-              style: TextStyle(color: Colors.blue, fontSize: 12),
-            ),
-            SizedBox(height: 12),
-            Text('3. Tap any .usdz file'),
-            Text('4. Tap "View in AR"'),
-            SizedBox(height: 16),
-            Text('💡 For true AR measurement, you would need:'),
-            Text('• A Mac computer'),
-            Text('• Xcode installed'),
-            Text('• Native iOS Flutter app with ARKit'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Tap anywhere to start measuring')),
     );
   }
 
@@ -430,7 +359,7 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
             Text('📏 How it works:'),
             SizedBox(height: 8),
             Text('1. Tap "Start Measuring"'),
-            Text('2. Tap camera view to place Point A'),
+            Text('2. Tap screen to place Point A'),
             Text('3. Tap again to place Point B'),
             Text('4. Distance is calculated automatically'),
             SizedBox(height: 12),
@@ -439,10 +368,8 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
             Text('• View recent measurements'),
             Text('• Clear all measurements'),
             SizedBox(height: 12),
-            Text('⚠️ Note: This is a simulation.'),
-            Text('For real AR measurements:'),
-            Text('• Use iPhone\'s built-in Measure app'),
-            Text('• Or build native ARKit app on a Mac'),
+            Text('💡 Tip: For real AR measurements,'),
+            Text('use iPhone\'s built-in Measure app'),
           ],
         ),
         actions: [
@@ -451,16 +378,6 @@ class _ARMeasureScreenState extends State<ARMeasureScreen> {
             child: const Text('Got it'),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -477,5 +394,3 @@ class Measurement {
     required this.dateTime,
   });
 }
-
-//sAS
